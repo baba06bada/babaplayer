@@ -3,22 +3,18 @@ name: Build APK
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # Manuel çalıştırma için
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    # ÇALIŞMA DİZİNİNİ AYARLA - EN ÖNEMLİ KISIM!
-    defaults:
-      run:
-        working-directory: ./  # Proje kökü
-    
     steps:
       - uses: actions/checkout@v4
       
+      # ÖNEMLİ: Çalışma dizinini babaplayer klasörüne ayarla
+      - name: Set working directory
+        run: cd babaplayer
+        
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -27,16 +23,19 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-          channel: 'stable'
           
-      - name: Flutter Pub Get
-        run: flutter pub get
+      - name: Install dependencies
+        run: |
+          cd babaplayer
+          flutter pub get
         
       - name: Build APK
-        run: flutter build apk --split-per-abi
+        run: |
+          cd babaplayer
+          flutter build apk --split-per-abi
         
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: apk
-          path: build/app/outputs/flutter-apk/*.apk
+          name: babaplayer-apk
+          path: babaplayer/build/app/outputs/flutter-apk/*.apk
